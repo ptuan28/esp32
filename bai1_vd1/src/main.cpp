@@ -49,5 +49,3 @@ void loop() {
   ledcWrite(LED_CHANNEL, brightness);
   delay(10);
 }
-/// ok
-/// tai = tuat
