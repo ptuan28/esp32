@@ -1,21 +1,33 @@
 #include <Arduino.h>
+#define ADC 34       // ADC1_CH6, chỉ input
+#define LED 18
+#define BTN 0        // nút BOOT trên board
+#define N   8
 
-#define ADC_PIN     34      // ADC1_CH6 (đổi sang chân ADC2 ở phần ADC2)
-#define LED_PIN     18
-#define LED_CHANNEL 0       // chỉ dùng cho core 2.x
-#define N           8       // số mẫu của bộ lọc trung bình trượt
-#define USE_FILTER  0       // 0 = LED theo số liệu THÔ, 1 = LED theo số liệu ĐÃ LỌC
+#define LEDC_CH   0  // kênh PWM
+#define LEDC_FREQ 5000
+#define LEDC_RES  8  // 8-bit: 0..255
 
 int buf[N];
 int idx = 0;
-bool bufReady = false;
+bool dungLoc = false;
+bool btnTruoc = HIGH;
 
-// Lọc trung bình trượt N mẫu
+void setup() {
+  Serial.begin(115200);
+  pinMode(BTN, INPUT_PULLUP);
+
+  analogReadResolution(12);                 // 0..4095
+  analogSetPinAttenuation(ADC, ADC_11db);   // đo 0..3.3V
+
+  ledcSetup(LEDC_CH, LEDC_FREQ, LEDC_RES);  // core 2.x
+  ledcAttachPin(LED, LEDC_CH);
+
+  int v = analogRead(ADC);                  // nạp đầy buffer lúc khởi động
+  for (int i = 0; i < N; i++) buf[i] = v;
+}
+
 int loc(int m) {
-  if (!bufReady) {                          // lần đầu: điền đầy buffer bằng mẫu đầu tiên
-    for (int i = 0; i < N; i++) buf[i] = m;
-    bufReady = true;
-  }
   buf[idx] = m;
   idx = (idx + 1) % N;
   long t = 0;
@@ -23,36 +35,23 @@ int loc(int m) {
   return t / N;
 }
 
-void setup() {
-  Serial.begin(115200);
-#if ESP_ARDUINO_VERSION_MAJOR >= 3
-  ledcAttach(LED_PIN, 5000, 8);
-#else
-  ledcSetup(LED_CHANNEL, 5000, 8);
-  ledcAttachPin(LED_PIN, LED_CHANNEL);
-#endif
-}
-
 void loop() {
-  int tho = analogRead(ADC_PIN);            // 0 - 4095
-  int l   = loc(tho);
+  // Bấm BOOT để đổi giữa THÔ và CÓ LỌC
+  bool btn = digitalRead(BTN);
+  if (btnTruoc == HIGH && btn == LOW) {
+    dungLoc = !dungLoc;
+    Serial.println(dungLoc ? "== CO LOC ==" : "== THO ==");
+    delay(200);
+  }
+  btnTruoc = btn;
 
-#if USE_FILTER
-  int v = l;
-#else
-  int v = tho;
-#endif
+  int tho = analogRead(ADC);   // 0..4095
+  int l   = loc(tho);          // luôn gọi để buffer được cập nhật
 
-  int duty = map(v, 0, 4095, 0, 255);
-#if ESP_ARDUINO_VERSION_MAJOR >= 3
-  ledcWrite(LED_PIN, duty);
-#else
-  ledcWrite(LED_CHANNEL, duty);
-#endif
+  int giaTri = dungLoc ? l : tho;
+  ledcWrite(LEDC_CH, map(giaTri, 0, 4095, 0, 255));  // core 2.x: ghi theo kênh
 
-  // Định dạng Teleplot (tiện ích VS Code), giống slide
   Serial.print(">tho:"); Serial.println(tho);
   Serial.print(">loc:"); Serial.println(l);
-
   delay(20);
 }
