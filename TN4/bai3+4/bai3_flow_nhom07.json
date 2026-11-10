@@ -1,0 +1,413 @@
+[
+  {
+    "id": "f1",
+    "type": "tab",
+    "label": "Bai 3 nhom-07",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "b1",
+    "type": "mqtt-broker",
+    "name": "Mosquitto",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true
+  },
+  {
+    "id": "t1",
+    "type": "ui_tab",
+    "name": "Bai 3",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "g1",
+    "type": "ui_group",
+    "name": "Giam sat",
+    "tab": "t1",
+    "order": 1,
+    "disp": true,
+    "width": "6",
+    "collapse": false,
+    "className": ""
+  },
+  {
+    "id": "g2",
+    "type": "ui_group",
+    "name": "Dieu khien LED",
+    "tab": "t1",
+    "order": 2,
+    "disp": true,
+    "width": "6",
+    "collapse": false,
+    "className": ""
+  },
+  {
+    "id": "m1",
+    "type": "mqtt in",
+    "z": "f1",
+    "name": "telemetry",
+    "topic": "aet2022/nhom-07/telemetry",
+    "qos": "0",
+    "datatype": "json",
+    "broker": "b1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 110,
+    "y": 120,
+    "wires": [
+      [
+        "c_t",
+        "c_h",
+        "c_b"
+      ]
+    ]
+  },
+  {
+    "id": "c_t",
+    "type": "change",
+    "z": "f1",
+    "name": "nhiet do",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload.temp",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 300,
+    "y": 60,
+    "wires": [
+      [
+        "gt",
+        "ch_t"
+      ]
+    ]
+  },
+  {
+    "id": "c_h",
+    "type": "change",
+    "z": "f1",
+    "name": "do am",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload.hum",
+        "tot": "msg"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 300,
+    "y": 120,
+    "wires": [
+      [
+        "gh"
+      ]
+    ]
+  },
+  {
+    "id": "c_b",
+    "type": "change",
+    "z": "f1",
+    "name": "nut vat ly",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload.btn = 1 ? 'DANG NHAN' : 'nha'",
+        "tot": "jsonata"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 300,
+    "y": 180,
+    "wires": [
+      [
+        "tb"
+      ]
+    ]
+  },
+  {
+    "id": "gt",
+    "type": "ui_gauge",
+    "z": "f1",
+    "name": "",
+    "group": "g1",
+    "order": 1,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Nhiet do",
+    "label": "°C",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 50,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "diff": false,
+    "className": "",
+    "x": 520,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "gh",
+    "type": "ui_gauge",
+    "z": "f1",
+    "name": "",
+    "group": "g1",
+    "order": 2,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Do am",
+    "label": "%",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 100,
+    "colors": [
+      "#ca3838",
+      "#00b500",
+      "#0099cc"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "diff": false,
+    "className": "",
+    "x": 520,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ch_t",
+    "type": "ui_chart",
+    "z": "f1",
+    "name": "",
+    "group": "g1",
+    "order": 3,
+    "width": 6,
+    "height": 4,
+    "label": "Nhiet do theo thoi gian",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "Cho du lieu...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "50",
+    "removeOlder": 1,
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#aec7e8",
+      "#ff7f0e",
+      "#2ca02c",
+      "#98df8a",
+      "#d62728",
+      "#ff9896",
+      "#9467bd",
+      "#c5b0d5"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "className": "",
+    "x": 540,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "tb",
+    "type": "ui_text",
+    "z": "f1",
+    "group": "g1",
+    "order": 4,
+    "width": 6,
+    "height": 1,
+    "name": "",
+    "label": "Nut vat ly",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "x": 520,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "bon",
+    "type": "ui_button",
+    "z": "f1",
+    "name": "",
+    "group": "g2",
+    "order": 1,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "BAT LED",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "green",
+    "className": "",
+    "icon": "",
+    "payload": "1",
+    "payloadType": "str",
+    "topic": "",
+    "topicType": "str",
+    "x": 110,
+    "y": 300,
+    "wires": [
+      [
+        "mo"
+      ]
+    ]
+  },
+  {
+    "id": "bof",
+    "type": "ui_button",
+    "z": "f1",
+    "name": "",
+    "group": "g2",
+    "order": 2,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "TAT LED",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "red",
+    "className": "",
+    "icon": "",
+    "payload": "0",
+    "payloadType": "str",
+    "topic": "",
+    "topicType": "str",
+    "x": 110,
+    "y": 360,
+    "wires": [
+      [
+        "mo"
+      ]
+    ]
+  },
+  {
+    "id": "mo",
+    "type": "mqtt out",
+    "z": "f1",
+    "name": "cmd led",
+    "topic": "aet2022/nhom-07/cmd/led",
+    "qos": "0",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "b1",
+    "x": 320,
+    "y": 330,
+    "wires": []
+  },
+  {
+    "id": "ms",
+    "type": "mqtt in",
+    "z": "f1",
+    "name": "state led",
+    "topic": "aet2022/nhom-07/state/led",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "b1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 110,
+    "y": 440,
+    "wires": [
+      [
+        "c_s"
+      ]
+    ]
+  },
+  {
+    "id": "c_s",
+    "type": "change",
+    "z": "f1",
+    "name": "on/off",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload = '1' ? 'LED: BAT' : 'LED: TAT'",
+        "tot": "jsonata"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 300,
+    "y": 440,
+    "wires": [
+      [
+        "ts"
+      ]
+    ]
+  },
+  {
+    "id": "ts",
+    "type": "ui_text",
+    "z": "f1",
+    "group": "g2",
+    "order": 3,
+    "width": 6,
+    "height": 1,
+    "name": "",
+    "label": "Trang thai",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "x": 520,
+    "y": 440,
+    "wires": []
+  }
+]
